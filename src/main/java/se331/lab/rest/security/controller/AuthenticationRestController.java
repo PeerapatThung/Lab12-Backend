@@ -12,7 +12,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import se331.lab.rest.entity.Event;
 import se331.lab.rest.security.JwtTokenUtil;
 import se331.lab.rest.security.entity.JwtUser;
 import se331.lab.rest.security.entity.User;
@@ -79,6 +82,18 @@ public class AuthenticationRestController {
         } else {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> addUser(@RequestBody User user) {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        user.setPassword(encoder.encode(user.getPassword()));
+        user.setEmail(user.getEmail());
+        user.setEnabled(true);
+        User output = userRepository.save(user);
+        return ResponseEntity.ok(LabMapper.INSTANCE.getUserDto(output));
+
+
     }
 
 
